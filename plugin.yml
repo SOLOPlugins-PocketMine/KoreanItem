@@ -1,5 +1,5 @@
 name: KoreanItem
-version: 0.0.1
+version: 0.0.2
 author: solo
 main: solo\koreanitem\KoreanItem
 api: [3.0.0, 3.1.0, 4.0.0]
