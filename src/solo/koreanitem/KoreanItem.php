@@ -114,7 +114,7 @@ class $class extends $derived implements $interface{
 	}
 
 	public function getName() : string{
-		return \$this->_names[\$this->meta] ?? parent::getName();
+		return \$this->_names[\$this->meta] ?? \$this->_names[0] ?? parent::getName();
 	}
 
 	public function cloneFrom(\$block){
@@ -148,7 +148,7 @@ class $class extends $derived implements $interface{
 	}
 
 	public function getVanillaName() : string{
-		return \$this->_names[\$this->meta] ?? parent::getName();
+		return \$this->_names[\$this->meta] ?? \$this->_names[0] ?? parent::getName();
 	}
 
 	public function cloneFrom(\$item){
