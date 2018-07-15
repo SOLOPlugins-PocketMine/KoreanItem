@@ -16,7 +16,7 @@ class KoreanItem extends PluginBase{
 	/** @var array */
 	private $list;
 
-	public function onLoad(){
+	public function onEnable(){
 		@mkdir($this->getDataFolder());
 
 		$this->saveResource("list.json");
@@ -32,27 +32,13 @@ class KoreanItem extends PluginBase{
 		foreach($this->list as $id_meta => $name){
 			$token = explode(":", $id_meta);
 			$id = intval($token[0]);
-			$meta = intval($token[1] ?? 0);
+			$meta = intval($token[1]);
 
 			// 0 ~ 255 : Block
 			if($id < 256) $this->setBlockName($id, $meta, $name);
 
 			// else Item
 			else $this->setItemName($id, $meta, $name);
-		}
-	}
-
-	public function setItemName(int $id, int $meta, string $name){
-		$item = ItemFactory::get($id, $meta);
-		if(!$item instanceof Renameable){
-			if($item instanceof Air){
-				$item = new Item($id, $meta);
-			}
-			$item = createRenameableItem($item);
-			$item->rename($meta, $name);
-			ItemFactory::registerItem($item, true); // override
-		}else{
-			$item->rename($meta, $name);
 		}
 	}
 
@@ -63,23 +49,34 @@ class KoreanItem extends PluginBase{
 				$block = new Block($id, $meta);
 			}
 			$block = createRenameableBlock($block);
-			$block->rename($meta, $name);
-			BlockFactory::registerBlock($block, true); // override
-		}else{
-			$block->rename($meta, $name);
 		}
+		$block->rename($meta, $name);
+		BlockFactory::registerBlock($block, true); // override
 	}
 
-	private function dump($obj){
-		$ref = new \ReflectionObject($obj);
-		echo PHP_EOL . "----- " . $ref->getShortName() . " -----" . PHP_EOL;
-		echo "class " . $ref->getName() . " extends " . $ref->getParentClass()->getName() . " implements " . implode($ref->getInterfaceNames(), " ") . PHP_EOL;
-		echo "Object name : " . $obj->getName() . PHP_EOL;
-		echo "...start dump..." . PHP_EOL;
-		var_dump($obj);
-		echo "...end dump..." . PHP_EOL;
-		echo "-----------------" . PHP_EOL;
+	public function setItemName(int $id, int $meta, string $name){
+		$item = ItemFactory::get($id, $meta);
+		if(!$item instanceof Renameable){
+			if($item instanceof Air){
+				$item = new Item($id, $meta);
+			}
+			$item = createRenameableItem($item);
+			$item->rename($meta, $name);
+		}
+		ItemFactory::registerItem($item, true); // override
+		$item->rename($meta, $name);
 	}
+
+	// private function dump($obj){
+	// 	$ref = new \ReflectionObject($obj);
+	// 	echo PHP_EOL . "----- " . $ref->getShortName() . " -----" . PHP_EOL;
+	// 	echo "class " . $ref->getName() . " extends " . $ref->getParentClass()->getName() . " implements " . implode($ref->getInterfaceNames(), " ") . PHP_EOL;
+	// 	echo "Object name : " . $obj->getName() . PHP_EOL;
+	// 	echo "...start dump..." . PHP_EOL;
+	// 	var_dump($obj);
+	// 	echo "...end dump..." . PHP_EOL;
+	// 	echo "-----------------" . PHP_EOL;
+	// }
 }
 
 
