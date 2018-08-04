@@ -11,7 +11,7 @@ use pocketmine\plugin\PluginBase;
 
 class KoreanItem extends PluginBase{
 
-	const LIST_VERSION = 1;
+	const LIST_VERSION = 2;
 
 	/** @var array */
 	private $list;
