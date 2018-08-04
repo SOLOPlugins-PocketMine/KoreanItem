@@ -61,10 +61,9 @@ class KoreanItem extends PluginBase{
 				$item = new Item($id, $meta);
 			}
 			$item = createRenameableItem($item);
-			$item->rename($meta, $name);
 		}
-		ItemFactory::registerItem($item, true); // override
 		$item->rename($meta, $name);
+		ItemFactory::registerItem($item, true); // override
 	}
 
 	// private function dump($obj){
