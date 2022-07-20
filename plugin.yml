@@ -1,6 +1,6 @@
 name: KoreanItem
-version: 0.1.2
+version: 0.1.3
 author: solo
 main: solo\koreanitem\KoreanItem
-api: [3.0.0, 3.1.0, 4.0.0]
+api: 4.0.0
 load: POSTWORLD

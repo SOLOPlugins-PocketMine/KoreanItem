@@ -4,9 +4,9 @@ namespace solo\koreanitem;
 
 use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
-use pocketmine\block\UnknownBlock;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIdentifier;
 use pocketmine\plugin\PluginBase;
 
 class KoreanItem extends PluginBase{
@@ -14,9 +14,9 @@ class KoreanItem extends PluginBase{
 	const LIST_VERSION = 2;
 
 	/** @var array */
-	private $list;
+	protected array $list;
 
-	public function onEnable(){
+	public function onEnable() : void{
 		@mkdir($this->getDataFolder());
 
 		$this->saveResource("list.json");
@@ -43,118 +43,19 @@ class KoreanItem extends PluginBase{
 	}
 
 	public function setBlockName(int $id, int $meta, string $name){
-		$block = BlockFactory::get($id, $meta);
-		if(!$block instanceof Renameable){
-			if($block instanceof UnknownBlock){
-				$block = new Block($id, $meta);
-			}
-			$block = createRenameableBlock($block);
+		$block = BlockFactory::getInstance()->get($id, $meta);
+		if($block instanceof Block){
+		    $block = new Block($block->getIdInfo(), $name, $block->getBreakInfo());
+            BlockFactory::getInstance()->register($block, true); // override
 		}
-		$block->rename($meta, $name);
-		BlockFactory::registerBlock($block, true); // override
 	}
 
 	public function setItemName(int $id, int $meta, string $name){
-		$item = ItemFactory::get($id, $meta);
-		if(!$item instanceof Renameable){
-			if($item instanceof Air){
-				$item = new Item($id, $meta);
-			}
-			$item = createRenameableItem($item);
-		}
-		$item->rename($meta, $name);
-		ItemFactory::registerItem($item, true); // override
-	}
-
-	// private function dump($obj){
-	// 	$ref = new \ReflectionObject($obj);
-	// 	echo PHP_EOL . "----- " . $ref->getShortName() . " -----" . PHP_EOL;
-	// 	echo "class " . $ref->getName() . " extends " . $ref->getParentClass()->getName() . " implements " . implode($ref->getInterfaceNames(), " ") . PHP_EOL;
-	// 	echo "Object name : " . $obj->getName() . PHP_EOL;
-	// 	echo "...start dump..." . PHP_EOL;
-	// 	var_dump($obj);
-	// 	echo "...end dump..." . PHP_EOL;
-	// 	echo "-----------------" . PHP_EOL;
-	// }
-}
-
-
-interface Renameable{
-	public function rename(int $meta, string $name);
-
-	public function cloneFrom($obj);
-}
-
-function createRenameableInstance(string $class, $derived = null){
-	$instance = (new \ReflectionClass($class))->newInstanceWithoutConstructor();
-	if($derived !== null) $instance->cloneFrom($derived);
-	return $instance;
-}
-
-function createRenameableBlock(Block $block){
-	$ref = (new \ReflectionObject($block));
-	$class = "_KoreanBlock" . $ref->getShortName();
-	try{ // class exists?
-		return createRenameableInstance($class, $block);
-	}catch(\ReflectionException $e){ }
-
-	$derived = $ref->getName();
-	$interface = Renameable::class;
-	$code =
-<<<EOF
-class $class extends $derived implements $interface{
-	private \$_names = [];
-
-	public function rename(int \$meta, string \$name){
-		\$this->_names[\$meta] = \$name;
-	}
-
-	public function getName() : string{
-		return \$this->_names[\$this->meta] ?? \$this->_names[0] ?? parent::getName();
-	}
-
-	public function cloneFrom(\$block){
-		foreach(get_object_vars(\$block) as \$k => \$v){
-			\$this->\$k = \$v;
+		$item = ItemFactory::getInstance()->get($id, $meta);
+		if($item instanceof Item){
+		    $item = new Item(new ItemIdentifier($item->getId(), $item->getMeta()), $name);
+            ItemFactory::getInstance()->register($item, true); // override
 		}
 	}
-}
-EOF;
 
-	eval($code);
-	return createRenameableInstance($class, $block);
-}
-
-function createRenameableItem(Item $item){
-	$ref = (new \ReflectionObject($item));
-	$class = "_KoreanItem" . $ref->getShortName();
-	try{ // class exists?
-		return createRenameableInstance($class, $item);
-	}catch(\ReflectionException $e){ }
-
-	$derived = $ref->getName();
-	$interface = Renameable::class;
-	$code =
-<<<EOF
-class $class extends $derived implements $interface{
-	private \$_names = [];
-
-	public function rename(int \$meta, string \$name){
-		\$this->_names[\$meta] = \$name;
-	}
-
-	public function getVanillaName() : string{
-		return \$this->_names[\$this->meta] ?? \$this->_names[0] ?? parent::getName();
-	}
-
-	public function cloneFrom(\$item){
-		foreach(get_object_vars(\$item) as \$k => \$v){
-			\$this->\$k = \$v;
-		}
-	}
-}
-EOF;
-
-	eval($code);
-	return createRenameableInstance($class, $item);
 }
